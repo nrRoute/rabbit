@@ -1,0 +1,16 @@
+(* filesys *)
+syscall fopen (p) {
+  case [p.x] ->
+    new y = Fd(x) in
+    put [p.x]; y
+  end
+}
+
+syscall fread (y){
+  let x = y.Fd in
+  x
+}
+
+syscall fclose (y) {
+  delete y.Fd
+}
