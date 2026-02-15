@@ -1,3 +1,6 @@
+(*** Cam-Server Model ***)
+
+
 (* load syscalls on channels *)
 load "pervasives.rab" (* load common functions *)
 load "udp_rpc.rab"   (* load syscalls on channels *)
@@ -9,8 +12,7 @@ syscall get_picture () {
   v
 }
 
-(***********)
-(** declare types with their classes *)
+(*** Type Declarations and Access Control Rules ***)
 type readonly_t   : filesys
 
 type server_t 	  : process
@@ -20,8 +22,6 @@ type client_ta_t  : process
 type udp_t 	  : channel
 type rpc_t 	  : channel
 
-(***********)
-(** access control *)
 allow client_t udp_t [send]
 allow server_t udp_t [recv]
 
@@ -35,49 +35,38 @@ allow client_t [get_picture]
 allow client_ta_t readonly_t  [fopen, fread, fclose]
 allow server_t readonly_t     [fopen, fread, fclose]
 
+(*** Attacker Model ***)
 
-(***********)
-(** attacker model *)
-
-attack tampar_channel on recv (c) {
+attack tamper_channel on recv (c) {
   case [c::store(j), ::In(w)] ->
     w
   end
 }
 
-allow attack server_t [tampar_channel]
+allow attack server_t [tamper_channel]
 
 passive attack eaves_mem (v) {
   put [::Out(v)]
 }
 
-
 allow client_t [eaves_mem]
 
-
-(***********)
-(** global constants *)
+(** global constants **)
 const fresh priv_k
 const fresh sym_k
 const fresh init_data
 
-
-(***********)
-(** installed channels and filesystems *)
+(** installed channels **)
 channel udp : udp_t
-
 channel rpc : rpc_t
 
-(***********)
-(** process templates *)
-process client(ch_net : udp_t, ch_rpc : rpc_t) : client_t
-{
+(** process templates **)
+process client(ch_net : udp_t, ch_rpc : rpc_t) : client_t {
   var dev_path = "/dev/camera"
   var privkey_path = "/secret/priv"
   var invoke_func = "sign_image"
 
-  main
-  {
+  main {
 
     var conn = connect_rpc(ch_rpc) in
     repeat
@@ -91,9 +80,7 @@ process client(ch_net : udp_t, ch_rpc : rpc_t) : client_t
       _ := eaves_mem(sig);
 
       event [::ImgSend(image)];
-
       _ := send(ch_net, (sig, image))
-
     until
     | [] -> skip
     end;
@@ -104,19 +91,17 @@ process client(ch_net : udp_t, ch_rpc : rpc_t) : client_t
   }
 }
 
-process client_ta(ch_rpc : rpc_t) : client_ta_t
-{
+process client_ta(ch_rpc : rpc_t) : client_ta_t {
   file "/secret/priv" : readonly_t = enc(priv_k, sym_k)
   var fek = sym_k
 
-  function sign_image(image, privkey_path)
-  {
+  function sign_image(image, privkey_path) {
     var privkey_fd = fopen(privkey_path) in
 
     var privkey = fread(privkey_fd) in
 
     (* check whether privkey can be decrypted properly *)
-    assume [privkey = enc(xxx, fek)] in
+    assume [privkey = enc(_, fek)] in
 
     var privkey0 = dec(privkey, fek) in
 
@@ -127,8 +112,7 @@ process client_ta(ch_rpc : rpc_t) : client_ta_t
     sig
   }
 
-  main
-  {
+  main {
     _ := accept_rpc(ch_rpc);
 
     repeat
@@ -149,22 +133,18 @@ process client_ta(ch_rpc : rpc_t) : client_ta_t
   }
 }
 
-process server(ch_net : udp_t) : server_t
-{
+process server(ch_net : udp_t) : server_t {
   file "/secret/pub" : readonly_t = pk(priv_k)
   var pubkey_path = "/secret/pub"
 
-
-
-  main
-  {
+  main {
     var pubkey_fd = fopen(pubkey_path) in
     var pubkey = fread(pubkey_fd) in
     repeat
     | [] →
       var p = recv(ch_net) in
       (* check if p is a pair *)
-      assume [p = (xxx, yyy)] in
+      assume [p = (_, _)] in
       var res = verify(fst(p), snd(p), pubkey) in
       case
       | [res = true] →
@@ -179,8 +159,7 @@ process server(ch_net : udp_t) : server_t
   }
 }
 
-
-(***********)
+(** Process Configuration and Expected Properties **)
 system
   client(udp, rpc)
   |	server(udp)
