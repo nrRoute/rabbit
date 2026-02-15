@@ -239,9 +239,9 @@ function run_measure() {
     # echo "[*] Running tamarin-prover on ${spthy_file} proving Reachable (timeout: ${timeout_minutes}m)..."
     local LOG_FILE1="${LOG_DIR}/${spthy_file_name}.Reachable.log"
     info "Verifying Reachable Lemma for (timeout: ${timeout_minutes}m)"
-    
-    info "Running: $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" +RTS -N"${NUM_CORES}" -RTS --prove=Reachable" &> "$LOG_FILE1"" 
-    if $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" +RTS -N"${NUM_CORES}" -RTS --prove=Reachable" "--quiet" &> "$LOG_FILE1"; then
+
+    info "Running: $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" "+RTS" "-N${NUM_CORES}" "-RTS" "--prove=Reachable" &> "$LOG_FILE1"" 
+    if $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" "+RTS" "-N${NUM_CORES}" "-RTS" "--prove=Reachable" "--quiet" &> "$LOG_FILE1"; then
         success "Tamarin terminated within timeout."
     else
         fail "Tamarin did not finish within timeout. Process was killed."   
@@ -255,8 +255,8 @@ function run_measure() {
     local LOG_FILE2="${LOG_DIR}/${spthy_file_name}.Correspondence.log"
     info "Verifying Correspondence Lemma for (timeout: ${timeout_minutes}m)"
     
-    info "Running: $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" +RTS -N"${NUM_CORES}" -RTS --prove=Correspondence" &> "$LOG_FILE2"" 
-    if $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" +RTS -N"${NUM_CORES}" -RTS --prove=Correspondence" "--quiet" &> "$LOG_FILE2"; then
+    info "Running: $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" "+RTS" "-N${NUM_CORES}" "-RTS" "--prove=Correspondence" &> "$LOG_FILE2"" 
+    if $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" "+RTS" "-N${NUM_CORES}" "-RTS" "--prove=Correspondence" "--quiet" &> "$LOG_FILE2"; then
         success "Tamarin terminated within timeout."
     else
         fail "Tamarin did not finish within timeout. Process was killed."   
@@ -273,8 +273,8 @@ function run_measure() {
 
         info "Verifying Sub-Lemmas for (timeout: ${timeout_minutes}m)"
         
-        info "Running: $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file} "+RTS" "-N${NUM_CORES}" "-RTS" "--prove=AlwaysStarts" "--prove=AlwaysStartsWhenEnds" "--prove=TransitionOnce" &> "$LOG_FILE3"" 
-        if $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" +RTS -N"${NUM_CORES}" -RTS --prove=AlwaysStarts" "--prove=AlwaysStartsWhenEnds" "--prove=TransitionOnce" "--quiet" &> "$LOG_FILE3"; then
+        info "Running: $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" "+RTS" "-N${NUM_CORES}" "-RTS" "--prove=AlwaysStarts" "--prove=AlwaysStartsWhenEnds" "--prove=TransitionOnce" &> "$LOG_FILE3"" 
+        if $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" "+RTS" "-N${NUM_CORES}" "-RTS" "--prove=AlwaysStarts" "--prove=AlwaysStartsWhenEnds" "--prove=TransitionOnce" "--quiet" &> "$LOG_FILE3"; then
             success "Tamarin terminated within timeout."
         else
             fail "Tamarin did not finish within timeout. Process was killed."   
@@ -349,8 +349,8 @@ function compare_mode() {
     
     info "Verifying Reachable Lemma for (timeout: ${timeout_minutes}m)"
     
-    info "Running: $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "$spthy_file" +RTS -N"${NUM_CORES}" -RTS --prove=Reachable" &> "$tamarin_log1""    
-    if $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "$spthy_file" +RTS -N"${NUM_CORES}" -RTS --prove=Reachable" "--quiet" &> "$tamarin_log1"; then
+    info "Running: $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "$spthy_file" "+RTS" "-N${NUM_CORES}" "-RTS" "--prove=Reachable" &> "$tamarin_log1""    
+    if $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" "+RTS" "-N${NUM_CORES}" "-RTS" "--prove=Reachable" "--quiet" &> "$tamarin_log1"; then
         success "Tamarin terminated within timeout."
     else
         fail "Tamarin did not finish within timeout. Process was killed."
@@ -363,8 +363,8 @@ function compare_mode() {
     info "Verifying Correspondence Lemma for (timeout: ${timeout_minutes}m)"
 
 
-    info "Running: $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "$spthy_file" +RTS -N"${NUM_CORES}" -RTS --prove=Correspondence" &> "$tamarin_log2""
-    if $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "$spthy_file" +RTS -N"${NUM_CORES} "-RTS" "--prove=Correspondence" "--quiet" &> "$tamarin_log2"; then
+    info "Running: $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "$spthy_file" "+RTS" "-N${NUM_CORES}" "-RTS" "--prove=Correspondence" &> "$tamarin_log2""
+    if $TIMEOUT_CMD "$timeout_seconds" tamarin-prover "${spthy_file}" "+RTS" "-N${NUM_CORES}" "-RTS" "--prove=Correspondence" "--quiet" &> "$tamarin_log2"; then
         success "Tamarin terminated within timeout."
     else
         fail "Tamarin did not finish within timeout. Process was killed."
