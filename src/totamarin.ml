@@ -1144,7 +1144,7 @@ let translate_sys
                    st
                    empty_state_desc
                    (Some (mk_transition_expr `Initial))
-               else mk_state_fact ~param:!fresh_string st empty_state_desc None)
+               else mk_state_fact ?param:param_string st empty_state_desc None)
             models
       }
   in
