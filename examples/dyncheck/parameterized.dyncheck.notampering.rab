@@ -40,14 +40,6 @@ allow server_t readonly_t     [fopen, fread, fclose]
 (***********)
 (** attacker model *)
 
-attack tamper_channel on recv (c) {
-  case [c::store(j), ::In(w)] ->
-    w
-  end
-}
-
-allow attack server_t [tamper_channel]
-
 passive attack eaves_mem (v) {
   put [::Out(v)]
 }
@@ -117,6 +109,9 @@ process client_ta<k>(ch_rpc : rpc_t) : client_ta_t
 
     var privkey = fread(privkey_fd) in
 
+    (* check whether privkey can be decrypted properly *)
+    assume [privkey = enc(xxx, fek)] in
+
     var privkey0 = dec(privkey, fek) in
 
     var sig = sign(image, privkey0) in
@@ -169,9 +164,8 @@ process server(ch_net<> : udp_t) : server_t
     repeat
     | [ch_net<addr> :: store(d) ] →
       var p = d in
-      (* begin attack *)
-      case [::In(k)] -> p := k | [] -> skip end;
-      (* end attack *)
+      (* check if p is a pair *)
+      assume [p = (xxx, yyy)] in
       var res = verify(fst(p), snd(p), pubkey<addr>) in
       case
       | [res = true] →
